@@ -1,0 +1,59 @@
+plugins {
+    id "java"
+    id "application"
+    id "org.javamodularity.moduleplugin" version "1.8.15"
+    id "org.openjfx.javafxplugin" version "0.0.13"
+    id "org.beryx.jlink" version "2.25.0"
+}
+
+group = "com.devbam"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
+def junitVersion = "5.12.1"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+}
+
+application {
+    mainModule = "com.devbam.kioskrenewal"
+    mainClass = "com.devbam.kioskrenewal.KioskApplication"
+}
+
+javafx {
+    version = "17.0.14"
+    modules = ["javafx.controls", "javafx.fxml"]
+}
+
+dependencies {
+    compileOnly "org.projectlombok:lombok:1.18.42"
+    annotationProcessor "org.projectlombok:lombok:1.18.42"
+
+    testCompileOnly "org.projectlombok:lombok:1.18.42"
+    testAnnotationProcessor "org.projectlombok:lombok:1.18.42"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+jlink {
+    imageZip = layout.buildDirectory.file("/distributions/app-${javafx.platform.classifier}.zip")
+    options = ["--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"]
+    launcher {
+        name = "app"
+    }
+}
